@@ -21,11 +21,10 @@ let getCaloriesPerELf lines =
             | first::rest ->
                 let newValue = first + cal
                 newValue::rest
+            | _ -> elfsSoFar
         | None -> 0::elfsSoFar
     lines |> Seq.fold action initialValue |> List.rev
     
-let getMaxCalories caloriesPerElf = caloriesPerElf |> List.max
-
 let sumFirstThree list =
     match list with
     | [] -> None
@@ -41,18 +40,14 @@ let sumFirstThree list =
             | _ -> state
         Some (list |> List.fold action initialValue)
 
-let calculateMaxCalories = readLines >> getCaloriesPerELf >> getMaxCalories
+let calculateMaxCalories =
+    readLines >> getCaloriesPerELf >> List.max
 let calculateTopThreeCalories =
-    readLines >>
-    getCaloriesPerELf >>
-    List.sort >>
-    List.rev >>
-    sumFirstThree
+    readLines >> getCaloriesPerELf >> List.sort >> List.rev >> List.take 3 >> List.sum
+    
 
-let filePath = @"day1\input.txt"
+let filePath = @"input.txt"
 let maxCalories = calculateMaxCalories filePath
 printfn $"Max Calories = %i{maxCalories}"
 let topThreeCalories = calculateTopThreeCalories filePath
-match topThreeCalories with
-| None -> printfn "No Calories found"
-| Some (_,calories) -> printfn $"Top three Calories = %i{calories}"
+printfn $"Top three Calories = %i{topThreeCalories}"
