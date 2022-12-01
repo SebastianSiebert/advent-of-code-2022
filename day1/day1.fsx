@@ -10,8 +10,7 @@ let lineToValue (line: string) =
     
 let getCaloriesPerELf lines =
     let initialValue = [0]
-    let action caloriesPerElf x =
-        let calories = lineToValue x
+    let action caloriesPerElf calories =
         match calories with
         | Some cal ->
             match caloriesPerElf with
@@ -25,7 +24,7 @@ let getCaloriesPerELf lines =
 let calculateTopThreeCalories =  List.sortDescending >> List.take 3 >> List.sum
 
 let filePath = @"input.txt"
-let caloriesPerElf = filePath |> readLines |> getCaloriesPerELf
+let caloriesPerElf = filePath |> readLines |> Seq.map lineToValue |> getCaloriesPerELf
 let maxCalories = caloriesPerElf |> List.max
 printfn $"Max Calories = %i{maxCalories}"
 let topThreeCalories = caloriesPerElf |> calculateTopThreeCalories
