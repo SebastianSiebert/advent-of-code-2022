@@ -29,7 +29,6 @@ let calculateMaxCalories =
     readLines >> getCaloriesPerELf >> List.max
 let calculateTopThreeCalories =
     readLines >> getCaloriesPerELf >> List.sort >> List.rev >> List.take 3 >> List.sum
-    
 
 let filePath = @"input.txt"
 let maxCalories = calculateMaxCalories filePath
