@@ -25,21 +25,6 @@ let getCaloriesPerELf lines =
         | None -> 0::elfsSoFar
     lines |> Seq.fold action initialValue |> List.rev
     
-let sumFirstThree list =
-    match list with
-    | [] -> None
-    | _ ->
-        let initialValue = (0,0)
-        let action state x =
-            let (number, value) = state
-            match number with
-            | number when number < 3 ->
-                let newNumber = number + 1
-                let newValue = value + x
-                (newNumber,newValue)
-            | _ -> state
-        Some (list |> List.fold action initialValue)
-
 let calculateMaxCalories =
     readLines >> getCaloriesPerELf >> List.max
 let calculateTopThreeCalories =
