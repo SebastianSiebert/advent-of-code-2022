@@ -11,13 +11,14 @@ let lineToValue (line: string) =
 let calculateCaloriesPerELf lines =
     let initialValue = [0]
     let action caloriesPerElf calories =
-        match calories with
-        | Some cal ->
+        let calculateNewCalories value =
             match caloriesPerElf with
             | first::rest ->
-                let newValue = first + cal
+                let newValue = first + value
                 newValue::rest
             | _ -> caloriesPerElf
+        match calories with
+        | Some cal -> calculateNewCalories cal
         | None -> 0::caloriesPerElf
     lines |> Seq.fold action initialValue
     
