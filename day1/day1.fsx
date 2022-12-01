@@ -22,10 +22,8 @@ let getCaloriesPerELf lines =
         | None -> 0::caloriesPerElf
     lines |> Seq.fold action initialValue
     
-let calculateMaxCalories =
-    readLines >> getCaloriesPerELf >> List.max
-let calculateTopThreeCalories =
-    readLines >> getCaloriesPerELf >> List.sortDescending >> List.take 3 >> List.sum
+let calculateMaxCalories = readLines >> getCaloriesPerELf >> List.max
+let calculateTopThreeCalories = readLines >> getCaloriesPerELf >> List.sortDescending >> List.take 3 >> List.sum
 
 let filePath = @"input.txt"
 let maxCalories = calculateMaxCalories filePath
