@@ -10,19 +10,16 @@ let lineToValue (line: string) =
     
 let getCaloriesPerELf lines =
     let initialValue = [0]
-    let action elfsSoFar x =
+    let action caloriesPerElf x =
         let calories = lineToValue x
         match calories with
         | Some cal ->
-            match elfsSoFar with
-            | [element] ->
-                let newValue = element + cal
-                [newValue]
+            match caloriesPerElf with
             | first::rest ->
                 let newValue = first + cal
                 newValue::rest
-            | _ -> elfsSoFar
-        | None -> 0::elfsSoFar
+            | _ -> caloriesPerElf
+        | None -> 0::caloriesPerElf
     lines |> Seq.fold action initialValue
     
 let calculateMaxCalories =
