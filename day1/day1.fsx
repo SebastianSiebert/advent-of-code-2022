@@ -23,7 +23,6 @@ let calculateCaloriesPerELf lines =
     
 let calculateSumOfTopThreeCalories =  List.sortDescending >> List.take 3 >> List.sum
 
-let filePath = @"input.txt"
-let caloriesPerElf = filePath |> readLines |> Seq.map lineToValue |> calculateCaloriesPerELf
+let caloriesPerElf = "input.txt" |> readLines |> Seq.map lineToValue |> calculateCaloriesPerELf
 caloriesPerElf |> List.max |> printfn "Max Calories = %i"
 caloriesPerElf |> calculateSumOfTopThreeCalories |> printfn "Top three Calories = %i"
