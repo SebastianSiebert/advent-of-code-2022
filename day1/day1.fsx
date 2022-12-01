@@ -8,7 +8,7 @@ let lineToValue (line: string) =
     | true -> None
     | false -> Some (line |> int)
     
-let getCaloriesPerELf lines =
+let calculateCaloriesPerELf lines =
     let initialValue = [0]
     let action caloriesPerElf calories =
         match calories with
@@ -21,11 +21,9 @@ let getCaloriesPerELf lines =
         | None -> 0::caloriesPerElf
     lines |> Seq.fold action initialValue
     
-let calculateTopThreeCalories =  List.sortDescending >> List.take 3 >> List.sum
+let calculateSumOfTopThreeCalories =  List.sortDescending >> List.take 3 >> List.sum
 
 let filePath = @"input.txt"
-let caloriesPerElf = filePath |> readLines |> Seq.map lineToValue |> getCaloriesPerELf
-let maxCalories = caloriesPerElf |> List.max
-printfn $"Max Calories = %i{maxCalories}"
-let topThreeCalories = caloriesPerElf |> calculateTopThreeCalories
-printfn $"Top three Calories = %i{topThreeCalories}"
+let caloriesPerElf = filePath |> readLines |> Seq.map lineToValue |> calculateCaloriesPerELf
+caloriesPerElf |> List.max |> printfn "Max Calories = %i"
+caloriesPerElf |> calculateSumOfTopThreeCalories |> printfn "Top three Calories = %i"
