@@ -3,22 +3,11 @@ open System.IO
 
 let readLines filePath = seq { yield! File.ReadLines(filePath) }
 
+let checkLineNotEmpty line = line |> String.IsNullOrWhiteSpace |> not
+
 let lineToValue (line: string) =
-    match String.IsNullOrEmpty line with
-    | true -> None
-    | false ->
-        let parts = line.Split " "
-        Some (parts[0],parts[1])
-        
-let filterSome value =
-    match value with
-    | Some _ -> true
-    | None -> false
-    
-let getValues value =
-    match value with
-    | Some value -> value
-    | None -> ("","")
+    let parts = line.Split " "
+    (parts[0],parts[1])
 
 type Selection = Rock | Paper | Scissors | UndefinedSelection
 type Outcome = Win | Loss | Draw | UndefinedOutcome
@@ -29,28 +18,28 @@ let getSelectionPoint selection =
     | Paper -> 2
     | Scissors -> 3
     | UndefinedSelection -> 0
-    
+
 let getOutcomePoint outcome =
     match outcome with
     | Loss -> 0
     | Draw -> 3
     | Win -> 6
     | UndefinedOutcome -> 0
-    
+
 let mapElfToSelection elfSelection =
     match elfSelection with
     | "A" -> Rock
     | "B" -> Paper
     | "C" -> Scissors
     | _ -> UndefinedSelection
-    
+
 let mapPlayerToSelection playerSelection =
     match playerSelection with
     | "X" -> Rock
     | "Y" -> Paper
     | "Z" -> Scissors
     | _ -> UndefinedSelection
-    
+
 let mapDesiredOutcome playerOutcome =
     match playerOutcome with
     | "X" -> Loss
@@ -70,7 +59,7 @@ let getOutcome selections =
     | Scissors, Scissors -> Draw
     | Scissors, Paper -> Loss
     | _ -> UndefinedOutcome
-    
+
 let getPlayerSelection selections =
     match selections with
     | Rock, Win -> Paper
@@ -110,11 +99,12 @@ let mapDesiredOutcomeToPoints desiredOutcome =
     let outcomeScore = getOutcomePoint outcome
     let score = playerSelectionScore + outcomeScore
     score
-    
-let getValuesFromInput = readLines >> Seq.map lineToValue >> Seq.filter filterSome >> Seq.map getValues
 
-let scorePart1 = "input.txt" |> getValuesFromInput |> Seq.map mapSelections |> Seq.map calculatePoints |> Seq.sum
+let getValuesFromInput = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue
+
+let values = "input.txt" |> getValuesFromInput
+let scorePart1 = values |> Seq.map mapSelections |> Seq.map calculatePoints |> Seq.sum
 printfn $"Part1 Points = %i{scorePart1}"
 
-let scorePart2 = "input.txt" |> getValuesFromInput |> Seq.map mapSelectionsPart2 |> Seq.map mapDesiredOutcomeToPoints |> Seq.sum
+let scorePart2 = values |> Seq.map mapSelectionsPart2 |> Seq.map mapDesiredOutcomeToPoints |> Seq.sum
 printfn $"Part2 Points = %A{scorePart2}"
