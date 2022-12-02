@@ -93,7 +93,7 @@ let calculatePoints selections =
     let score = playerSelectionScore + outcomeScore
     score
     
-let calculateScore test = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue >> Seq.map test >> Seq.map calculatePoints >> Seq.sum
+let calculateScore mapSelections = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue >> Seq.map mapSelections >> Seq.map calculatePoints >> Seq.sum
 
 let filePath = "input.txt"
 let scorePart1 = filePath |> calculateScore mapSelections
