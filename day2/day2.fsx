@@ -73,23 +73,21 @@ let getPlayerSelection selections =
     | Scissors, Loss -> Paper
     | _ -> UndefinedSelection
     
-let mapSelections selections =
-    let elf, player = selections
+let mapSelections (elf, player) =
     let elfSelection = mapElfToSelection elf
     let playerSelection = mapPlayerToSelection player
-    (elfSelection, playerSelection)
+    let outcomeValue = (elfSelection, playerSelection) |> getOutcome
+    (playerSelection, outcomeValue)
 
-let mapSelectionsPart2 selection =
-    let elf, outcome = selection
+let mapSelectionsPart2 (elf, outcome) =
     let elfSelection = mapElfToSelection elf
     let outcomeValue = mapDesiredOutcome outcome
     let playerSelection = getPlayerSelection (elfSelection, outcomeValue)
-    (elfSelection, playerSelection)
+    (playerSelection, outcomeValue)
     
-let calculatePoints selections =
-    let _, player = selections
+let calculatePoints (player, outcome) =
     let playerSelectionScore = getSelectionPoint player
-    let outcomeScore = selections |> getOutcome |> getOutcomePoint
+    let outcomeScore = getOutcomePoint outcome
     let score = playerSelectionScore + outcomeScore
     score
     
