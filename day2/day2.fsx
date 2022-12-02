@@ -78,6 +78,13 @@ let mapSelections selections =
     let elfSelection = mapElfToSelection elf
     let playerSelection = mapPlayerToSelection player
     (elfSelection, playerSelection)
+
+let mapSelectionsPart2 selection =
+    let elf, outcome = selection
+    let elfSelection = mapElfToSelection elf
+    let outcomeValue = mapDesiredOutcome outcome
+    let playerSelection = getPlayerSelection (elfSelection, outcomeValue)
+    (elfSelection, playerSelection)
     
 let calculatePoints selections =
     let _, player = selections
@@ -85,26 +92,12 @@ let calculatePoints selections =
     let outcomeScore = selections |> getOutcome |> getOutcomePoint
     let score = playerSelectionScore + outcomeScore
     score
-
-let mapSelectionsPart2 selection =
-    let elf, outcome = selection
-    let elfSelection = mapElfToSelection elf
-    let outcomeValue = mapDesiredOutcome outcome
-    let playerSelection = getPlayerSelection (elfSelection, outcomeValue)
-    (playerSelection, outcomeValue)
     
-let mapDesiredOutcomeToPoints desiredOutcome =
-    let player, outcome = desiredOutcome
-    let playerSelectionScore = getSelectionPoint player
-    let outcomeScore = getOutcomePoint outcome
-    let score = playerSelectionScore + outcomeScore
-    score
+let calculateScore test = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue >> Seq.map test >> Seq.map calculatePoints >> Seq.sum
 
-let getValuesFromInput = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue
-
-let values = "input.txt" |> getValuesFromInput
-let scorePart1 = values |> Seq.map mapSelections |> Seq.map calculatePoints |> Seq.sum
+let filePath = "input.txt"
+let scorePart1 = filePath |> calculateScore mapSelections
 printfn $"Part1 Points = %i{scorePart1}"
 
-let scorePart2 = values |> Seq.map mapSelectionsPart2 |> Seq.map mapDesiredOutcomeToPoints |> Seq.sum
+let scorePart2 = filePath |> calculateScore mapSelectionsPart2
 printfn $"Part2 Points = %A{scorePart2}"
