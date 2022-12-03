@@ -26,18 +26,11 @@ let getOutcomePoint outcome =
     | Win -> 6
     | UndefinedOutcome -> 0
 
-let mapElfToSelection elfSelection =
+let mapToSelection elfSelection =
     match elfSelection with
-    | "A" -> Rock
-    | "B" -> Paper
-    | "C" -> Scissors
-    | _ -> UndefinedSelection
-
-let mapPlayerToSelection playerSelection =
-    match playerSelection with
-    | "X" -> Rock
-    | "Y" -> Paper
-    | "Z" -> Scissors
+    | "A" | "X" -> Rock
+    | "B" | "Y" -> Paper
+    | "C" | "Z" -> Scissors
     | _ -> UndefinedSelection
 
 let mapDesiredOutcome playerOutcome =
@@ -49,38 +42,26 @@ let mapDesiredOutcome playerOutcome =
 
 let getOutcome selections =
     match selections with
-    | Rock, Rock -> Draw
-    | Rock, Scissors -> Loss
-    | Rock, Paper -> Win
-    | Paper, Rock -> Loss
-    | Paper, Scissors -> Win
-    | Paper, Paper -> Draw
-    | Scissors, Rock -> Win
-    | Scissors, Scissors -> Draw
-    | Scissors, Paper -> Loss
+    | Rock, Rock | Paper, Paper | Scissors, Scissors -> Draw
+    | Rock, Scissors | Paper, Rock | Scissors, Paper -> Loss
+    | Rock, Paper | Paper, Scissors | Scissors, Rock -> Win
     | _ -> UndefinedOutcome
 
 let getPlayerSelection selections =
     match selections with
-    | Rock, Win -> Paper
-    | Rock, Draw -> Rock
-    | Rock, Loss -> Scissors
-    | Paper, Win -> Scissors
-    | Paper, Draw -> Paper
-    | Paper, Loss -> Rock
-    | Scissors, Win -> Rock
-    | Scissors, Draw -> Scissors
-    | Scissors, Loss -> Paper
+    | Rock, Win | Paper, Draw | Scissors, Loss -> Paper
+    | Rock, Draw | Paper, Loss | Scissors, Win -> Rock
+    | Rock, Loss | Paper, Win | Scissors, Draw -> Scissors
     | _ -> UndefinedSelection
     
 let mapSelections (elf, player) =
-    let elfSelection = mapElfToSelection elf
-    let playerSelection = mapPlayerToSelection player
+    let elfSelection = mapToSelection elf
+    let playerSelection = mapToSelection player
     let outcomeValue = (elfSelection, playerSelection) |> getOutcome
     (playerSelection, outcomeValue)
 
 let mapSelectionsPart2 (elf, outcome) =
-    let elfSelection = mapElfToSelection elf
+    let elfSelection = mapToSelection elf
     let outcomeValue = mapDesiredOutcome outcome
     let playerSelection = getPlayerSelection (elfSelection, outcomeValue)
     (playerSelection, outcomeValue)
@@ -94,8 +75,5 @@ let calculatePoints (player, outcome) =
 let calculateScore mapSelections = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue >> Seq.map mapSelections >> Seq.map calculatePoints >> Seq.sum
 
 let filePath = "input.txt"
-let scorePart1 = filePath |> calculateScore mapSelections
-printfn $"Part1 Points = %i{scorePart1}"
-
-let scorePart2 = filePath |> calculateScore mapSelectionsPart2
-printfn $"Part2 Points = %A{scorePart2}"
+filePath |> calculateScore mapSelections |> printfn "Part1 Points = %i"
+filePath |> calculateScore mapSelectionsPart2 |> printfn "Part2 Points = %i"
