@@ -15,17 +15,15 @@ let mapCharToInt c =
 let lineToValue line = line |> Seq.map mapCharToInt |> Seq.toList
 
 let findItem rucksack =
-    let fst::snd::rest = rucksack
+    let fst::snd::_ = rucksack
     let value = fst |> List.filter (fun e -> List.contains e snd)
     value[0]
     
-let makeDistinctAndSort elfTrio =
-    List.map (fun e -> e |> List.distinct |> List.sort) elfTrio
+let makeDistinctAndSort elfTrio = List.map (fun e -> e |> List.distinct |> List.sort) elfTrio
     
-let findBadge elfTrio =
-    elfTrio |> List.concat |> List.groupBy (fun e -> e) |> List.filter (fun (_, values) -> List.length values = 3) |> List.map (fun (key, _) -> key)
+let findBadge elfTrio = elfTrio |> List.concat |> List.countBy id |> List.filter (fun (_, values) -> values = 3) |> List.map fst
 
 let prepareValues = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue
-"input.txt" |> prepareValues |> Seq.map (fun e -> List.splitInto 2 e) |> Seq.map findItem |> Seq.sum |> printfn "Part1 = %i"
+"input.txt" |> prepareValues |> Seq.map (List.splitInto 2) |> Seq.map findItem |> Seq.sum |> printfn "Part1 = %i"
 
 "input.txt" |> prepareValues |> Seq.chunkBySize 3 |> Seq.map Array.toList |> Seq.map makeDistinctAndSort |> Seq.map findBadge |> Seq.concat |> Seq.sum |> printfn "Part2 = %i"
