@@ -19,7 +19,7 @@ let findItem rucksack =
     let value = fst |> List.filter (fun e -> List.contains e snd)
     value[0]
     
-let makeDistinctAndSort elfTrio = elfTrio |> Array.toList |> List.map (fun e -> e |> List.distinct |> List.sort)
+let makeDistinctAndSort elfTrio = elfTrio |> Array.toList |> List.map List.distinct
 let findBadge elfTrio = elfTrio |> List.concat |> List.countBy id |> List.filter (fun (_, values) -> values = 3) |> List.map fst
 
 let prepareValues = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue
