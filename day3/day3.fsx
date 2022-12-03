@@ -19,11 +19,10 @@ let findItem rucksack =
     let value = fst |> List.filter (fun e -> List.contains e snd)
     value[0]
     
-let makeDistinctAndSort elfTrio = List.map (fun e -> e |> List.distinct |> List.sort) elfTrio
-    
+let makeDistinctAndSort elfTrio = elfTrio |> Array.toList |> List.map (fun e -> e |> List.distinct |> List.sort)
 let findBadge elfTrio = elfTrio |> List.concat |> List.countBy id |> List.filter (fun (_, values) -> values = 3) |> List.map fst
 
 let prepareValues = readLines >> Seq.filter checkLineNotEmpty >> Seq.map lineToValue
 "input.txt" |> prepareValues |> Seq.map (List.splitInto 2) |> Seq.map findItem |> Seq.sum |> printfn "Part1 = %i"
 
-"input.txt" |> prepareValues |> Seq.chunkBySize 3 |> Seq.map Array.toList |> Seq.map makeDistinctAndSort |> Seq.map findBadge |> Seq.concat |> Seq.sum |> printfn "Part2 = %i"
+"input.txt" |> prepareValues |> Seq.chunkBySize 3 |> Seq.map makeDistinctAndSort |> Seq.map findBadge |> Seq.concat |> Seq.sum |> printfn "Part2 = %i"
