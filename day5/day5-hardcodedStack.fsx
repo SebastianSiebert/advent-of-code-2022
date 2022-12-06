@@ -28,7 +28,7 @@ let mapValues line =
     if move.Success then Moves {Number=int move.Groups[1].Value; FromStack=int move.Groups[2].Value; ToStack=int move.Groups[3].Value}
     else Empty
     
-let rec makeMoves fn stacks move =
+let makeMoves fn stacks move =
     let stack = List.find (fun e -> e.Index = move.FromStack) stacks
     let mapStack s =
         match s.Index with
@@ -36,7 +36,6 @@ let rec makeMoves fn stacks move =
         | _ when s.Index = move.ToStack -> {s with Stack = (List.append (fn stack.Stack[..move.Number-1]) s.Stack)}
         | _ -> s
     stacks |> List.map mapStack
-    
     
 let processData makeMovesFn stack = readFile >> Seq.map mapValues >> Seq.filter (fun e -> match e with | Moves _ -> true | _ -> false) >> Seq.map (fun (Moves m) -> m) >> Seq.fold (makeMoves makeMovesFn) stack >> Seq.map (fun e -> e.Stack.Head) >> System.String.Concat
 
