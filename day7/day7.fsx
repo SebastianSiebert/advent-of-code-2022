@@ -46,16 +46,17 @@ let calculateDirSize (files: File list) dir =
     // let size = files |> List.filter (fun e -> e.Name.Tail = dir.Name) |> List.sumBy (fun e -> e.Size)
     {dir with DirSize=size}
     
-let filterDirSizeLess size dir =
-    if dir.DirSize < size then true
-    else false
-    
 let getStructures = "input.txt" |> readFile |> Seq.fold createFileTree ([], []) |> snd
 let files = getStructures |> List.choose (|IsFile|)
-let directories =
-    getStructures
-    |> List.choose (|IsDir|)
-    |> List.map (calculateDirSize files)
-    |> List.sortByDescending (fun e -> e.Name)
+let directories = getStructures |> List.choose (|IsDir|) |> List.map (calculateDirSize files)
 
 directories |> List.filter (fun d -> d.DirSize < 100000) |> List.sumBy (fun d -> d.DirSize) |> printfn "Part1 = %i"
+
+let totalDiskSpace = 70000000
+let spaceNeeded = 30000000
+let spaceUsed = directories |> List.find (fun d -> d.Name = ["/"]) |> (fun d -> d.DirSize)
+let unusedSpace = totalDiskSpace - spaceUsed
+let neededToFreeSpace = spaceNeeded - unusedSpace
+
+let directorySpaceToDelete = directories |> List.filter (fun d -> d.DirSize > neededToFreeSpace) |> List.map (fun d -> d.DirSize) |> List.min
+directorySpaceToDelete |> printfn "Part2 = %A"
