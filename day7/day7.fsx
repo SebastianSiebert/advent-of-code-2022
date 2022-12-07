@@ -12,17 +12,12 @@ let regexFile = Regex "(\d+) (.+)"
 let changeDirectory (currentDir, structures) (regex: Match) =
     let dirName = regex.Groups[1].Value
     match dirName with
-    | ".." ->
-        let newCurDir = List.tail currentDir
-        (newCurDir, structures)
+    | ".." -> (List.tail currentDir, structures)
     | _ ->
         let newCurDir = dirName::currentDir
         (newCurDir, Dir {Name = newCurDir; DirSize=0}::structures)
         
-let addFile (currentDir, structures) (regex: Match) =
-    let fileSize = int regex.Groups[1].Value
-    let fileName = regex.Groups[2].Value
-    (currentDir, File {Name=fileName::currentDir; Size=fileSize}::structures)
+let addFile (currentDir, structures) (regex: Match) = (currentDir, File {Name=regex.Groups[2].Value::currentDir; Size=int regex.Groups[1].Value}::structures)
 
 let createFileTree state line =
     let cd = regexCd.Match line
@@ -43,7 +38,6 @@ let filterFilesDirAndSubDir dir (file: File) =
 
 let calculateDirSize (files: File list) dir =
     let size = files |> List.filter (filterFilesDirAndSubDir dir) |> List.sumBy (fun e -> e.Size)
-    // let size = files |> List.filter (fun e -> e.Name.Tail = dir.Name) |> List.sumBy (fun e -> e.Size)
     {dir with DirSize=size}
     
 let getStructures = "input.txt" |> readFile |> Seq.fold createFileTree ([], []) |> snd
