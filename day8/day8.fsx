@@ -1,12 +1,15 @@
 type Tree = {Value: int; Row: int; Column: int; Edge: bool}
 
-let readFile filePath = System.IO.File.ReadLines filePath
+module InputHelper =
+    let readFile filePath = System.IO.File.ReadLines filePath
 
-let inline charToInt c = int c - int '0'
+    let inline charToInt c = int c - int '0'
 
-let mapColumn row index tree = {Value=charToInt tree; Row=row; Column=index; Edge=false}
-let mapRows index (row: string) = row |> Seq.mapi (mapColumn index) 
-let mapEdges right bottom tree = match tree with | _ when tree.Row = 0 || tree.Row = bottom || tree.Column = 0 || tree.Column = right -> {tree with Edge=true} | _ -> tree
+    let mapColumn row index tree = {Value=charToInt tree; Row=row; Column=index; Edge=false}
+    let mapRows index (row: string) = row |> Seq.mapi (mapColumn index) 
+    let mapEdges right bottom tree = match tree with | _ when tree.Row = 0 || tree.Row = bottom || tree.Column = 0 || tree.Column = right -> {tree with Edge=true} | _ -> tree
+
+open InputHelper
 
 let filterTrees filterFn = Seq.filter filterFn
 let isCovered filterFn tree = filterTrees filterFn >> Seq.exists (fun t -> t.Value >= tree.Value)
