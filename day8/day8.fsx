@@ -31,11 +31,6 @@ let getMaxBy selector = Seq.maxBy selector >> selector
 let rightColumn = trees |> getMaxBy (fun t -> t.Column)
 let bottomRow = trees |> getMaxBy (fun t -> t.Row)
 
-let innerTrees = trees |> Seq.map (mapEdges rightColumn bottomRow)
-
-let covered = innerTrees |> Seq.filter (fun t -> not t.Edge) |> Seq.filter (treeCovered innerTrees) |> Seq.length
-innerTrees |> Seq.length |> (fun l -> l-covered) |> printfn "Part1 = %i"
-
 let takeTrees value state tree = match state with | _,finished when finished -> state | trees,_ -> (trees+1, tree.Value >= value)
 
 let getScenicScore getTreesFn tree seqFn = Seq.filter (getTreesFn tree) >> seqFn >> Seq.fold (takeTrees tree.Value) (0,false) >> fst
@@ -47,4 +42,13 @@ let calculateScenicScore trees tree =
     let rightScore = trees |> getScenicScore getRightTrees tree id
     topScore * bottomScore * leftScore * rightScore
 
-trees |> Seq.map (calculateScenicScore trees) |> Seq.max |> printfn "Part2 = %i"
+let part1 = async{
+    let innerTrees = trees |> Seq.map (mapEdges rightColumn bottomRow)
+
+    let covered = innerTrees |> Seq.filter (fun t -> not t.Edge) |> Seq.filter (treeCovered innerTrees) |> Seq.length
+    innerTrees |> Seq.length |> (fun l -> l-covered) |> printfn "Part1 = %i"
+    }
+
+let part2 = async { trees |> Seq.map (calculateScenicScore trees) |> Seq.max |> printfn "Part2 = %i" }
+
+[part1;part2] |> Async.Parallel |> Async.RunSynchronously
