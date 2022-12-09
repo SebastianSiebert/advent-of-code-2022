@@ -6,10 +6,9 @@ let readFile filePath = System.IO.File.ReadLines filePath
 
 let mapInput (input: string) =
     let parts = input.Split " "
-    let direction = match parts[0] with | "R" -> Right | "L" -> Left | "U" -> Up | _ -> Down
-    {Direction=direction; Steps=int parts[1]}
+    {Direction=(match parts[0] with | "R" -> Right | "L" -> Left | "U" -> Up | _ -> Down); Steps=int parts[1]}
     
-let calculateTail (hx,hy) (tx,ty) =
+let calculateKnot (hx,hy) (tx,ty) =
     let difX = hx - tx
     let difY = hy - ty
     match (difX,difY) with
@@ -23,22 +22,18 @@ let calculateTail (hx,hy) (tx,ty) =
         let y = match difY with | _ when difY >= 1 -> ty+1 | _ when difY <= -1 -> ty-1 | _ -> ty
         (x,y)
 
-let calculateHead direction head =
-    let value = moveValue direction
-    let hx,hy = head
-    match value with
-    | x,0 -> (hx+x, hy)
-    | 0,y -> (hx, hy+y)
-    | _ -> (hx,hy)
+let calculateHead direction (x,y) =
+    let x',y' = moveValue direction
+    (x+x',y+y')
+    
+let foldKnots (prevKnot, knots) knot =
+    let newKnot = calculateKnot prevKnot knot
+    (newKnot, newKnot::knots)
     
 let moveStep direction (tailPositions,head,tail) _ =
     let newHead = calculateHead direction head
-    let newTail = calculateTail newHead tail
+    let newTail = calculateKnot newHead tail
     (newTail::tailPositions,newHead,newTail)
-    
-let foldKnots (prevKnot, knots) knot =
-    let newKnot = calculateTail prevKnot knot
-    (newKnot, newKnot::knots)
     
 let moveStepLong direction (tailPositions,head,knots) _ =
     let newHead = calculateHead direction head
