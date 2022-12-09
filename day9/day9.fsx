@@ -1,6 +1,6 @@
 ﻿type Direction = | Right | Left | Up | Down
 type Move = {Direction: Direction; Steps: int}
-let moveValue direction = match direction with | Right -> (1,0) | Left -> (-1,0) | Up -> (0,-1) | Down -> (0,1)
+let moveValue direction = match direction with | Right -> (1,0) | Left -> (-1,0) | Up -> (0,1) | Down -> (0,-1)
 
 let readFile filePath = System.IO.File.ReadLines filePath
 
