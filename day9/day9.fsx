@@ -22,21 +22,33 @@ let calculateTail (hx,hy) (tx,ty) =
         let x = match difX with | _ when difX >= 1 -> tx+1 | _ when difX <= -1 -> tx-1 | _ -> tx
         let y = match difY with | _ when difY >= 1 -> ty+1 | _ when difY <= -1 -> ty-1 | _ -> ty
         (x,y)
-    
-let moveStep direction (tailPositions,head,tail) step =
+
+let calculateHead direction head =
     let value = moveValue direction
     let hx,hy = head
-    let newHead =
-        match value with
-        | x,0 -> (hx+x, hy)
-        | 0,y -> (hx, hy+y)
-        | _ -> (hx,hy)
+    match value with
+    | x,0 -> (hx+x, hy)
+    | 0,y -> (hx, hy+y)
+    | _ -> (hx,hy)
+    
+let moveStep direction (tailPositions,head,tail) _ =
+    let newHead = calculateHead direction head
     let newTail = calculateTail newHead tail
     (newTail::tailPositions,newHead,newTail)
     
-let makeMoves state (move: Move) =
-    [1..move.Steps] |> List.fold (moveStep move.Direction) state
+let foldKnots (prevKnot, knots) knot =
+    let newKnot = calculateTail prevKnot knot
+    (newKnot, newKnot::knots)
+    
+let moveStepLong direction (tailPositions,head,knots) _ =
+    let newHead = calculateHead direction head
+    let newKnots = knots |> List.fold foldKnots (newHead,[]) |> snd |> List.rev
+    ((newKnots |> List.rev |> List.head)::tailPositions,newHead,newKnots)
+    
+let makeMoves stepFn state (move: Move) = [1..move.Steps] |> List.fold (stepFn move.Direction) state
 
-"input.txt" |> readFile |> Seq.map mapInput
-|> Seq.fold makeMoves ([(0,0)],(0,0),(0,0)) |> fun (tail,_,_) -> tail |> List.distinct |> List.length
-|> printfn "Part1 = %A"
+let moves = "input.txt" |> readFile |> Seq.map mapInput
+moves |> Seq.fold (makeMoves moveStep) ([(0,0)],(0,0),(0,0)) |> fun (tail,_,_) -> tail |> List.distinct |> List.length |> printfn "Part1 = %i"
+
+let knots = [1..9] |> List.map (fun _ -> (0,0)) 
+moves |> Seq.fold (makeMoves moveStepLong) ([0,0],(0,0),knots) |> fun (tail,_,_) -> tail |> List.distinct |> List.length |> printfn "Part2 = %i"
