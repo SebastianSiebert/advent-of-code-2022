@@ -1,0 +1,3 @@
+[submodule "aoc2022-input"]
+	path = aoc2022-input
+	url = https://github.com/SebastianSiebert/aoc2022-input
