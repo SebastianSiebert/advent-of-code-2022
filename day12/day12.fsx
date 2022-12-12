@@ -33,7 +33,7 @@ let rec traverseGrid coords results direction =
     | Some cp ->
         let newCoords = coords |> Seq.map (mapPosition cp direction)
         let visited = newCoords |> filterVisited |> Seq.length
-        match results |> List.tryFind (fun e -> e >= visited) with
+        match results |> List.tryFind (fun e -> visited >= e) with
         | Some _ -> results
         | None -> directions |> List.map (traverseGrid newCoords results) |> List.concat
 
