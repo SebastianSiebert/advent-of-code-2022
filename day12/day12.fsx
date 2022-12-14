@@ -1,7 +1,11 @@
 ﻿open System.Diagnostics
 
-type Direction = | Right | Left | Up | Down
-type Coordinates = { X: int; Y: int; Elevation: int; Position: bool; Goal: bool; Visited: bool  }
+let startTime = Stopwatch.GetTimestamp()
+
+let addTuple (ax,ay) (bx,by) = (ax+bx,ay+by)
+
+type Coordinates = { Coordinates: int * int; Elevation: int; Position: bool; Goal: bool; Visited: bool  }
+type Edge = { From: int*int; To: int*int; Cost: int }
 let directions = [(-1,0);(1,0);(0,-1);(0,1)]
 
 let readFile filePath = System.IO.File.ReadLines filePath
@@ -12,45 +16,43 @@ let rec mapLines index line =
         let start = char = 'S'
         let goal = char = 'E'
         let elevation = match char with | 'S' -> charToInt 'a' | 'E' -> charToInt 'z' | _ -> charToInt char
-        { X=index; Y=i; Elevation=elevation; Position=start; Goal=goal; Visited=start }
+        { Coordinates=(index,i); Elevation=elevation; Position=start; Goal=goal; Visited=start }
     line |> Seq.mapi mapValues
     
 let tryFindPosition coords = Seq.tryFind (fun c -> c.Position) coords
 let filterVisited coords = Seq.filter (fun c -> c.Visited) coords
         
-let mapPosition cp (x,y) pos =
-    if (pos = cp)
-    then {pos with Position=false}
-    else
-        match pos with
-        | {X=x';Y=y';Elevation=e;Visited=v} when x' = cp.X + x && y' = cp.Y + y && e >= cp.Elevation && e <= cp.Elevation + 1 && not v ->
-            {pos with Position=true; Visited=true}
-        | _ -> pos
-        
-let posFilter coords cp (x,y) =
-    let positions = coords |> Seq.tryFind (fun e -> e.X = cp.X + x && e.Y = cp.Y + y && e.Elevation <= cp.Elevation + 1 && not e.Visited)
-    match positions with | None -> false | Some _ -> true
-        
-let rec traverseGrid coords results direction =
-    let currentPos = coords |> tryFindPosition
-    match currentPos with
-    | None -> results
-    | Some cp when cp.Goal -> (coords |> filterVisited |> Seq.length)::results
-    | Some cp ->
-        let newPositions = directions |> List.filter (posFilter coords cp)
-        match newPositions.Length with
-        | length when length = 0 -> results
-        | _ ->
-            let newCoords = coords |> Seq.map (mapPosition cp direction)
-            let visited = newCoords |> filterVisited |> Seq.length
-            match results |> List.tryFind (fun e -> visited >= e) with
-            | Some _ -> results
-            | None -> directions |> List.map (traverseGrid newCoords results) |> List.concat
-        
+let getEdges coords state currentPos =
+    let possibleLocations = directions |> List.map (addTuple currentPos.Coordinates)
+    let newPositions = coords |> List.filter (fun c -> List.contains c.Coordinates possibleLocations) |> List.filter (fun c -> c.Elevation <= currentPos.Elevation + 1) |> List.map (fun c -> {From=currentPos.Coordinates; To=c.Coordinates; Cost=1})
+    List.append newPositions state
+    
+let findShortestPath startPos allEdges  =
+    let rec addPaths edgesFromStart isDone =
+        if isDone then edgesFromStart
+        else
+            let newEdges =
+                allEdges
+                |> List.filter (fun e -> edgesFromStart |> List.tryFind (fun x -> e.From = x.To) |> function | Some _ -> true | _ -> false)
+                |> List.map (fun e ->
+                    let edge = List.find (fun x -> x.To = e.From) edgesFromStart
+                    {From=edge.From; To=e.To; Cost=edge.Cost + e.Cost})
+                |> List.append edgesFromStart
+                |> List.groupBy (fun e -> e.To)
+                |> List.map (fun (_,e) -> e |> List.minBy (fun x -> x.Cost))
+                |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
+            addPaths newEdges (edgesFromStart = newEdges)
+    let edges = allEdges |> List.filter (fun e -> e.From = startPos.Coordinates) |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
+    let allEdgesFromStart = addPaths edges false
+    
+    (fun endPos ->
+        allEdgesFromStart |> List.tryFind (fun e -> e.To = endPos))
 
 let coords = "../aoc2022-input/day12/input.txt" |> readFile |> Seq.mapi mapLines |> Seq.concat |> Seq.toList
 
-let stopwatch = Stopwatch.StartNew()
-directions |> List.map (traverseGrid coords []) |> List.concat |> List.min |> (fun visited -> visited - 1) |> printfn "Part1 = %i"
-stopwatch.Stop()
-printfn $"Elapsed: {stopwatch.Elapsed}"
+let start = coords |> List.find (fun e -> e.Position)
+let goal = coords |> List.find (fun e -> e.Goal)
+
+coords |> List.fold (getEdges coords) [] |> findShortestPath start |> (fun e -> e goal.Coordinates) |> printfn "Part1= %A"
+
+printfn $"Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
