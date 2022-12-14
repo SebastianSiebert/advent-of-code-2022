@@ -42,7 +42,8 @@ let findShortestPath startPos allEdges  =
                 |> List.map (fun (_,e) -> e |> List.minBy (fun x -> x.Cost))
                 |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
             addPaths newEdges (edgesFromStart = newEdges)
-    let edges = allEdges |> List.filter (fun e -> e.From = startPos.Coordinates) |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
+    let edges = allEdges |> List.filter (fun e -> List.exists (fun x -> e.From = x.Coordinates) startPos) |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
+    // let edges = allEdges |> List.filter (fun e -> e.From = startPos.Coordinates) |> List.sortBy (fun e -> (e.From, e.To, e.Cost))
     let allEdgesFromStart = addPaths edges false
     
     (fun endPos ->
@@ -50,9 +51,15 @@ let findShortestPath startPos allEdges  =
 
 let coords = "../aoc2022-input/day12/input.txt" |> readFile |> Seq.mapi mapLines |> Seq.concat |> Seq.toList
 
-let start = coords |> List.find (fun e -> e.Position)
+let start = coords |> List.filter (fun e -> e.Position)
 let goal = coords |> List.find (fun e -> e.Goal)
+let edges = coords |> List.fold (getEdges coords) [] 
 
-coords |> List.fold (getEdges coords) [] |> findShortestPath start |> (fun e -> e goal.Coordinates) |> printfn "Part1= %A"
+edges |> findShortestPath start |> (fun e -> e goal.Coordinates) |> printfn "Part1= %A"
+printfn $"Part1 Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
 
-printfn $"Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
+let startTimePart2 = Stopwatch.GetTimestamp()
+let startPositions = coords |> List.filter (fun e -> e.Elevation = 0)
+edges |> findShortestPath startPositions |> (fun e -> e goal.Coordinates) |> printfn "Part2= %A"
+
+printfn $"Part 2Elapsed: {Stopwatch.GetElapsedTime(startTimePart2)}; Total Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
