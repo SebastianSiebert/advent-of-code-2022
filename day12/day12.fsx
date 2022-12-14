@@ -54,12 +54,16 @@ let coords = "../aoc2022-input/day12/input.txt" |> readFile |> Seq.mapi mapLines
 let start = coords |> List.filter (fun e -> e.Position)
 let goal = coords |> List.find (fun e -> e.Goal)
 let edges = coords |> List.fold (getEdges coords) [] 
+printfn $"Edges Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
 
-edges |> findShortestPath start |> (fun e -> e goal.Coordinates) |> printfn "Part1= %A"
-printfn $"Part1 Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
+let startTimePart1 = Stopwatch.GetTimestamp()
+edges |> findShortestPath start |> (fun e -> e goal.Coordinates) |> printfn "Part1 = %A"
+printfn $"Part1 Elapsed: {Stopwatch.GetElapsedTime(startTimePart1)}"
+printfn $"Total Elapsed: %A{Stopwatch.GetElapsedTime(startTime)}"
 
 let startTimePart2 = Stopwatch.GetTimestamp()
 let startPositions = coords |> List.filter (fun e -> e.Elevation = 0)
-edges |> findShortestPath startPositions |> (fun e -> e goal.Coordinates) |> printfn "Part2= %A"
+edges |> findShortestPath startPositions |> (fun e -> e goal.Coordinates) |> printfn "Part2 = %A"
 
-printfn $"Part 2Elapsed: {Stopwatch.GetElapsedTime(startTimePart2)}; Total Elapsed: {Stopwatch.GetElapsedTime(startTime)}"
+printfn $"Part2 Elapsed: %A{Stopwatch.GetElapsedTime(startTimePart2)}" 
+printfn $"Total Elapsed: %A{Stopwatch.GetElapsedTime(startTime)}"
